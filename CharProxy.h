@@ -10,6 +10,7 @@ class CharProxy {
 public:
     CharProxy(fstream &file, fstream::pos_type pos):file_(file),pos_(pos){}
 
+
     CharProxy& operator= (char c){
         file_.seekp(pos_);
         file_.put(c);

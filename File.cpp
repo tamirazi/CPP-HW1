@@ -28,6 +28,7 @@ char File::operator[](fstream::pos_type i) const {
     return char(file->data->peek());
 
 }
+
 CharProxy File::operator[](fstream::pos_type i) {
     int length = file->data->tellg();
     file->data->seekg (0, file->data->end);

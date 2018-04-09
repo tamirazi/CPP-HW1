@@ -19,5 +19,6 @@ int main() {
     //todo: f[] call only write operator[]
 
 
+
     return 0;
 }
