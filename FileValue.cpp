@@ -4,7 +4,7 @@
 
 #include "FileValue.h"
 
-FileValue::FileValue(const char* initValue):refCount(1) {
+FileValue::FileValue(const char* initValue):refCount(1) , shareable(true){
     data = new fstream(initValue,ios::out|ios::in);
 }
 

@@ -5,12 +5,19 @@
 #include "File.h"
 
 
+
 File::File(const char* fileName ,const char* path):name(fileName),path(path) {
     file = new FileValue(fileName);
 }
 
 File::File(const File& elm):file(elm.file) {
-    ++file->refCount;
+    if(elm.file->shareable){
+        file = elm.file;
+        ++file->refCount;
+    }
+    else
+        file = new FileValue(elm.name);
+
 }
 File::~File() {
     if(--file->refCount == 0){
@@ -18,23 +25,46 @@ File::~File() {
     }
 }
 
-char File::operator[](fstream::pos_type i) const {
-    int length = file->data->tellg();
+const char File::operator[](int i)const {
+    cout << "operator[r]" << endl;
+    if(!file->data->is_open()){
+        file->data->open(this->name , ios::out);
+        if(file->data->fail())
+            throw  std::runtime_error("operator[w] : cannot open file");
+    }
     file->data->seekg (0, file->data->end);
+    int length = file->data->tellg();
     file->data->seekg (0, file->data->beg);
-    if(i >= length)
+    if(i > length)
         throw std::range_error(("can't read on location"));
     file->data->seekg(i);
     return char(file->data->peek());
 
 }
 
-CharProxy File::operator[](fstream::pos_type i) {
-    int length = file->data->tellg();
+CharProxy File::operator[](fstream::pos_type i){
+    cout << "operator[w]" << endl;
+    //open file
+    if(!file->data->is_open()){
+        file->data->open(this->name , ios::out);
+        if(file->data->fail())
+            throw  std::runtime_error("operator[w] : cannot open file");
+    }
+    if(file->refCount > 1){
+        --file->refCount;
+        file = new FileValue(this->name);
+    }
+    file->shareable = false;
+
     file->data->seekg (0, file->data->end);
+    int length = file->data->tellg();
     file->data->seekg (0, file->data->beg);
-    if(i >= length)
+    if(i > length){
+        file->data->close();
         throw std::range_error(("can't write on location"));
+    }
+    file->data->clear();
+
     return CharProxy(*file->data , i);
 }
 File& File::operator=(const File& elm) {
@@ -43,21 +73,34 @@ File& File::operator=(const File& elm) {
 
     if(--file->refCount == 0)
         delete file;
+    if(elm.file->shareable){
+        file = elm.file;
+        ++file->refCount;
+    } else
+        file = new FileValue(elm.name);
 
-    file = elm.file;
-    ++file->refCount;
     return *this;
 
 }
 void File::cat() const {
     char c;
-    file->data->seekg(file->data->beg);
-  if(file->data->is_open()){
-      cout << file->data->rdbuf();
-  } else
-      throw "the file is not open";
+    string line;
+    //open the file to read
+    if(!file->data->is_open()){
+        file->data->open(this->name , ios::in);
+        if(file->data->fail())
+            throw "cat error : cannot find file";
+    }
+
+    file->data->seekg( 0 ,file->data->beg);
+    //print the file;
+    cout << file->data->rdbuf();
+//    while(getline(*file->data , line))
+//        cout << line << endl;
     cout << endl;
     file->data->clear();
+    //close file
+    file->data->close();
 }
 
 void touch(const char *name) {
@@ -73,9 +116,16 @@ void File::wc() const {
     int chars = 0;
     char c;
     string word;
-    file->data->seekg(file->data->beg);
 
-    if (file->data->is_open()) {
+    //open the file to read
+    if(!file->data->is_open()){
+        file->data->open(this->name , ios::in);
+        if(file->data->fail())
+            throw "cat error : cannot find file";
+    }
+
+        file->data->seekg(file->data->beg);
+        file->data->clear();
         while(!file->data->eof() && !file->data->fail()){    //count only words in file
             if(*file->data >> word){
                 words++;
@@ -94,9 +144,7 @@ void File::wc() const {
                 }
             }
         }
-    }
-    else
-        throw "wc function , the fle is not open";
+
 
     cout << "Lines: " << lines << " Words: " << words << " Characters: " << chars << endl;
     file->data->clear();

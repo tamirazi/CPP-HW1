@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include "CharProxy.h"
 using namespace std;
 
 class FileValue {
@@ -14,6 +15,7 @@ class FileValue {
 public:
     int refCount;
     fstream* data;
+    bool shareable;
     FileValue(const char* initValue);
     ~FileValue();
 

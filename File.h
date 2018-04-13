@@ -6,17 +6,18 @@
 #define HW1_FILE_H
 
 #include "FileValue.h"
-#include "CharProxy.h"
+
 
 class File {
 public:
+
 
     File(const char* name,const char* path);
     File(const File&);
     ~File();
     File& operator= (const File&);
-    char operator[] (fstream::pos_type i) const ;
-    CharProxy operator[] (fstream::pos_type i);
+    CharProxy operator [] (fstream::pos_type);
+    const char operator [](int)const;
     void cat() const ;
     void wc() const ;
     void remove();
@@ -26,8 +27,8 @@ public:
 
 private:
     FileValue *file;
-    string name;
-    string path;
+    const char* name;
+    const char* path;
 
 };
 void touch(const char*);

@@ -5,17 +5,17 @@
 #ifndef HW1_CHARPROXY_H
 #define HW1_CHARPROXY_H
 #include "FileValue.h"
-
+using namespace std;
 class CharProxy {
 public:
     CharProxy(fstream &file, fstream::pos_type pos):file_(file),pos_(pos){}
-
 
     CharProxy& operator= (char c){
         file_.seekp(pos_);
         file_.put(c);
         return *this;
     }
+
     operator char(){
         file_.seekg(pos_);
         return char(file_.get());
