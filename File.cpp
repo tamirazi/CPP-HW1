@@ -26,10 +26,11 @@ File::~File() {
     if(--file->refCount == 0){
         delete file;
     }
+    //cout << "File Des" <<endl;
 }
 
-const char File::operator[](int i)const {
-    cout << "operator[r]" << endl;
+const char File::operator[](int i)const  {
+    //cout << "operator[r]" << endl;
     if(!file->data->is_open()){
         file->data->open(this->name , ios::out);
         if(file->data->fail())
@@ -39,13 +40,13 @@ const char File::operator[](int i)const {
     int length = file->data->tellg();
     file->data->seekg (0, file->data->beg);
     if(i > length)
-        throw std::range_error(("can't read on location"));
+        throw ("can't read on location");
     file->data->seekg(i);
     return char(file->data->peek());
 
 }
 CharProxy File::operator[](fstream::pos_type i){
-    cout << "operator[w]" << endl;
+    //cout << "operator[w]" << endl;
     //open file
     if(!file->data->is_open()){
         file->data->open(this->name , ios::out);
@@ -160,11 +161,10 @@ bool File::operator==(const char* name) {
 void copy(const char* source, const char* destination){
     ifstream src(source ,ios::in);
     //open destination file and put the out sequence at the end od the file
-    ofstream des(destination , ios::out |ios::app);
+    ofstream des(destination , ios::out );
     char c;
     //copy
-    while(!src.eof() && !src.fail()){
-        src.get(c);
+    while(!src.eof() && src.get(c)){
         des << c;
     }
     //close all files
@@ -176,7 +176,13 @@ void copy(const char* source, const char* destination){
 };
 void move(const char* source, const char* destination){
     copy(source,destination);
-    //todo remove
+    //remove the file out side the function
 };
+void File::ln(File& target) {
+    if(--target.file->refCount == 0)
+        delete target.file;
+    target.file = file;
+    ++file->refCount;
+}
 
 

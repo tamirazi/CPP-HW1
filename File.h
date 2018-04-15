@@ -25,6 +25,8 @@ public:
     string getPath(){ return path;}
     string getName(){ return  name;}
     void remove();
+    void ln(File&);
+
 
 private:
     FileValue *file;
@@ -34,9 +36,7 @@ private:
 };
 void touch(const char*);
 void copy(const char*, const char*);
-void move(const char* source, const char* destination);
-
-void ln();
+void move(const char* , const char* );
 
 
 #endif //HW1_FILE_H

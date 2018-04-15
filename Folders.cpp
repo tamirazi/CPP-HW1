@@ -4,17 +4,16 @@
 
 
 #include <cstring>
+#include <sstream>
 #include "Folders.h"
 
 Folders::Folders():current("V/") {
     folders.push_back(Folder("V/" ,"V/"));
 };
-
-
-void Folders::mkdir(const char *name) {
+void Folders::mkdir(const char *name){
     //check if the vector already have folder with that name
-    if(find(folders.begin() , folders.end() ,name) != folders.end() ){
-        throw logic_error("mkdir error : already have folder with that name");
+    if(hasFolder(name) ){
+        throw ("mkdir error : already have folder with that name");
     } else // if not make new one
         folders.push_back(Folder(name , current.data()));
 
@@ -51,7 +50,7 @@ void Folders::rmdir(const char* name) {
 const char* Folders::pwd() {
     return current.data();
 }
-void Folders::ls(const char* name) {
+void Folders::ls(const char* name ) {
     //check if the vector already have folder with that name
     if(find(folders.begin() , folders.end() ,name) != folders.end() ){
         //print all folder with that path
@@ -71,16 +70,15 @@ void Folders::ls(const char* name) {
         cout << "Files: " << endl;
         for(; f!=l ;f++){
             if(!(f->getPath().compare(name)))
-                cout << f->getName() << " ";
+                cout << f->getName() <<  " " << f->getref() <<endl;
         }
 
     } else // if not make new one
         throw logic_error("ls error : cannot find folder");
-
+    cout<<endl;
 
 }
 void Folders::addFile(const char* fileName) {
-
     files.push_back(File(fileName , current.data()));
 }
 bool Folders::hasFile(const char* fileName) {
@@ -115,4 +113,90 @@ void Folders::lproot() {
     for(; first!=last ;first++){
         ls(first->getName());
     }
+}
+File& Folders::getFile(const char* name) {
+    vector<File>::iterator f , l;
+    if(hasFile(name)){
+        f = files.begin();
+        l = files.end();
+        for(; f!=l ;f++){
+            if(!(f->getName().compare(name)))
+                return *f;
+
+        }
+
+    }
+    return *f;
+
+}
+int Folders::getFileNum(const char* name) {
+    vector<File>::iterator f , l;
+    if(hasFile(name)){
+        f = files.begin();
+        l = files.end();
+        for(int i = 0; f!=l ;f++ , i++){
+            if(!(f->getName().compare(name)))
+                return i;
+
+        }
+
+    }
+    return -1;
+}
+void Folders::writeToFile(const char* fileName,const int pos ,const char data) {
+
+    fstream::pos_type i = pos;
+    if(hasFile(fileName))
+    {
+        int loc = getFileNum(fileName);
+        files[loc][i] = data;
+    } else
+        throw "writeToFile error: cannot find file with that name";
+
+
+}
+
+void Folders::copyFile(const char* source, const char* destination) {
+
+    if(!hasFile(destination)){
+        touch(destination);     //ceate new destination file
+        addFile(destination);   //add destination file to vector
+        copy(source , destination); //copy data
+    } else
+        copy(source , destination);
+
+}
+
+void Folders::moveFile(const char* source, const char* destination) {
+
+    File &src = getFile(source);
+    if(!hasFile(destination)){
+        touch(destination);     //ceate new destination file
+        addFile(destination);   //add destination file to vector
+        move(source , destination); //copy data
+        src.remove();
+
+    } else{
+        move(source,destination);
+        src.remove();
+    }
+}
+
+void Folders::ln(const char* src , const char* target) {
+
+    if(hasFile(src)){
+        File* file = &getFile(src);
+        addFile(target);
+        file->ln(getFile(target));
+    } else
+        throw "ln error: cannot file source file";
+
+}
+
+void Folders::ttouch(const char* fileName) {
+    string realFileName = fileName;
+    realFileName.replace(0 , current.length() , "");
+    touch(realFileName.data());
+    addFile(fileName);
+
 }
