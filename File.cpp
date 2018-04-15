@@ -1,4 +1,4 @@
-//
+#include <string>//
 // Created by tamir on 3/27/18.
 //
 
@@ -6,17 +6,20 @@
 
 
 
-File::File(const char* fileName ,const char* path):name(fileName),path(path) {
+File::File(const char* fileName ,const char* p):name(fileName),path(p) {
     file = new FileValue(fileName);
+    name = fileName ;
+    path = p;
+
 }
 
-File::File(const File& elm):file(elm.file) {
+File::File(const File& elm):file(elm.file) , name(elm.name) , path(elm.path) {
     if(elm.file->shareable){
         file = elm.file;
         ++file->refCount;
     }
     else
-        file = new FileValue(elm.name);
+        file = new FileValue(elm.name.data());
 
 }
 File::~File() {
@@ -41,7 +44,6 @@ const char File::operator[](int i)const {
     return char(file->data->peek());
 
 }
-
 CharProxy File::operator[](fstream::pos_type i){
     cout << "operator[w]" << endl;
     //open file
@@ -52,7 +54,7 @@ CharProxy File::operator[](fstream::pos_type i){
     }
     if(file->refCount > 1){
         --file->refCount;
-        file = new FileValue(this->name);
+        file = new FileValue(this->name.data());
     }
     file->shareable = false;
 
@@ -77,7 +79,7 @@ File& File::operator=(const File& elm) {
         file = elm.file;
         ++file->refCount;
     } else
-        file = new FileValue(elm.name);
+        file = new FileValue(elm.name.data());
 
     return *this;
 
@@ -102,14 +104,12 @@ void File::cat() const {
     //close file
     file->data->close();
 }
-
 void touch(const char *name) {
     ofstream file;
     file.open(name);
     file.flush();
     file.close();
 }
-
 void File::wc() const {
     int lines = 0;
     int words = 0;
@@ -149,24 +149,34 @@ void File::wc() const {
     cout << "Lines: " << lines << " Words: " << words << " Characters: " << chars << endl;
     file->data->clear();
 }
-
+void File::remove() {
+    if(--file->refCount == 0){
+        delete file;
+    }
+}
+bool File::operator==(const char* name) {
+    return (!(path.compare(name) == 0)) ? true : false;
+}
 void copy(const char* source, const char* destination){
-
-    ifstream src(source , ios::in);
-    ofstream des(destination , ios::out);
+    ifstream src(source ,ios::in);
+    //open destination file and put the out sequence at the end od the file
+    ofstream des(destination , ios::out |ios::app);
     char c;
+    //copy
     while(!src.eof() && !src.fail()){
         src.get(c);
         des << c;
     }
+    //close all files
+    src.clear();
+    src.close();
+    des.clear();
+    des.close();
 
 };
-
 void move(const char* source, const char* destination){
     copy(source,destination);
-    if( remove( source ) != 0 )
-        cerr <<  "Error deleting file: " << source << endl;
-    else
-        cout <<  "File successfully deleted"  << endl;
+    //todo remove
 };
+
 

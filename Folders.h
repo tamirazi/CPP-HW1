@@ -6,23 +6,30 @@
 #define HW1_FOLDERS_H
 
 #include <vector>
+#include <algorithm>
 #include "File.h"
-
+#include "Folder.h"
+using  namespace std;
 class Folders {
-public:
 
+
+public:
     Folders();
-    void mkdir(const char*);
+    void mkdir(const char* name);
     void chdir(const char*);
     void rmdir(const char*);
     void ls(const char*);
-
     void lproot();
-    void pwd();
+    const char* pwd();
+    void addFile(const char*);
+    bool hasFolder(const char*);
+    bool hasFile(const char*);
+
 
 private:
-    string name;
-    string path;
+    string current;
+    vector<Folder> folders; //folders
+    vector<File> files;     //files
 };
 
 
