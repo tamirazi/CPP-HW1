@@ -7,6 +7,7 @@
 
 #include "FileValue.h"
 #include <cstring>
+#include <iostream>
 
 
 class File {
@@ -24,6 +25,7 @@ public:
     fstream& getfile(){return *file->data;}
     string getPath(){ return path;}
     string getName(){ return  name;}
+    string getVecName(){return vecName;}
     void remove();
     void ln(File&);
 
@@ -32,6 +34,7 @@ private:
     FileValue *file;
     string name;
     string path;
+    string vecName;
 
 };
 void touch(const char*);

@@ -4,7 +4,7 @@
 
 #ifndef HW1_CHARPROXY_H
 #define HW1_CHARPROXY_H
-#include "FileValue.h"
+
 using namespace std;
 class CharProxy {
 public:

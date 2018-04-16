@@ -1,19 +1,14 @@
-#include <string>//
-// Created by tamir on 3/27/18.
-//
 
+#include <string>
 #include "File.h"
 
 
-
-File::File(const char* fileName ,const char* p):name(fileName),path(p) {
+File::File(const char* fileName ,const char* p):name(fileName),path(p),vecName(fileName) {
     file = new FileValue(fileName);
-    name = fileName ;
-    path = p;
-
+    name.replace(0 , path.length() , "");
 }
 
-File::File(const File& elm):file(elm.file) , name(elm.name) , path(elm.path) {
+File::File(const File& elm):file(elm.file) , name(elm.name) , path(elm.path) , vecName(elm.vecName) {
     if(elm.file->shareable){
         file = elm.file;
         ++file->refCount;
@@ -32,7 +27,7 @@ File::~File() {
 const char File::operator[](int i)const  {
     //cout << "operator[r]" << endl;
     if(!file->data->is_open()){
-        file->data->open(this->name , ios::out);
+        file->data->open(this->name.data() , ios::out);
         if(file->data->fail())
             throw  std::runtime_error("operator[w] : cannot open file");
     }
@@ -49,7 +44,7 @@ CharProxy File::operator[](fstream::pos_type i){
     //cout << "operator[w]" << endl;
     //open file
     if(!file->data->is_open()){
-        file->data->open(this->name , ios::out);
+        file->data->open(this->name.data() , ios::out);
         if(file->data->fail())
             throw  std::runtime_error("operator[w] : cannot open file");
     }
@@ -90,7 +85,7 @@ void File::cat() const {
     string line;
     //open the file to read
     if(!file->data->is_open()){
-        file->data->open(this->name , ios::in);
+        file->data->open(this->name.data() , ios::in);
         if(file->data->fail())
             throw "cat error : cannot find file";
     }
@@ -120,7 +115,7 @@ void File::wc() const {
 
     //open the file to read
     if(!file->data->is_open()){
-        file->data->open(this->name , ios::in);
+        file->data->open(this->name.data() , ios::in);
         if(file->data->fail())
             throw "cat error : cannot find file";
     }
@@ -160,7 +155,7 @@ bool File::operator==(const char* name) {
 }
 void copy(const char* source, const char* destination){
     ifstream src(source ,ios::in);
-    //open destination file and put the out sequence at the end od the file
+    //open destination file
     ofstream des(destination , ios::out );
     char c;
     //copy

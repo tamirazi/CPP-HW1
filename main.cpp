@@ -1,8 +1,7 @@
 
-#include "File.h"
 #include "Folders.h"
-using  namespace std;
 
+using namespace std;
 int main() {
 
     Folders terminal;
@@ -19,14 +18,12 @@ int main() {
     terminal.chdir("V/tmp/");
     cout << terminal.pwd();
 
-    copy("V/test.txt" , "V/tmp/t.dat");
-    copy("cpy.txt" , "V/tmp/f.cc");
+    terminal.copyFile("V/test.txt" , "V/tmp/t.dat");
+    terminal.copyFile("cpy.txt" , "V/tmp/f.cc");
 
     terminal.ln("V/tmp/f.cc"  , "V/tmp/cpy.txt");
 
     terminal.lproot();
-
-
 
     return 0;
 }

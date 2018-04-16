@@ -88,7 +88,7 @@ bool Folders::hasFile(const char* fileName) {
     l = files.end();
 
     for(; f!=l ;f++){
-        if(!(f->getName().compare(fileName)))   //if found
+        if(!(f->getVecName().compare(fileName)))   //if found
             return true;
     }
     return false;
@@ -120,7 +120,7 @@ File& Folders::getFile(const char* name) {
         f = files.begin();
         l = files.end();
         for(; f!=l ;f++){
-            if(!(f->getName().compare(name)))
+            if(!(f->getVecName().compare(name)))
                 return *f;
 
         }
@@ -135,7 +135,7 @@ int Folders::getFileNum(const char* name) {
         f = files.begin();
         l = files.end();
         for(int i = 0; f!=l ;f++ , i++){
-            if(!(f->getName().compare(name)))
+            if(!(f->getVecName().compare(name)))
                 return i;
 
         }
@@ -159,7 +159,7 @@ void Folders::writeToFile(const char* fileName,const int pos ,const char data) {
 void Folders::copyFile(const char* source, const char* destination) {
 
     if(!hasFile(destination)){
-        touch(destination);     //ceate new destination file
+        ttouch(destination);     //ceate new destination file
         addFile(destination);   //add destination file to vector
         copy(source , destination); //copy data
     } else
@@ -171,7 +171,7 @@ void Folders::moveFile(const char* source, const char* destination) {
 
     File &src = getFile(source);
     if(!hasFile(destination)){
-        touch(destination);     //ceate new destination file
+        ttouch(destination);     //ceate new destination file
         addFile(destination);   //add destination file to vector
         move(source , destination); //copy data
         src.remove();
