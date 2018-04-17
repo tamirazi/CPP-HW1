@@ -18,7 +18,7 @@ public:
     File& operator= (const File&);
     bool operator==(const char*);
     CharProxy operator [] (fstream::pos_type);
-    const char operator [](int)const;
+    char operator [](int)const;
     void cat() const ;
     void wc() const ;
     int getref(){return file->refCount;}
@@ -27,7 +27,7 @@ public:
     string getName(){ return  name;}
     string getVecName(){return vecName;}
     void remove();
-    void ln(File&);
+    void ln(File*);
 
 
 private:

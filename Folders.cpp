@@ -78,8 +78,22 @@ void Folders::ls(const char* name ) {
     cout<<endl;
 
 }
-void Folders::addFile(const char* fileName) {
-    files.push_back(File(fileName , current.data()));
+void Folders::addFile(const char* fileName , string path ) {
+    if(path == "")
+        path = current;
+    files.push_back(File(fileName , path.data()));
+}
+void Folders::removeFile(const char *fileName) {
+    //look over the files vector and search file with same name
+    vector<File>::iterator f , l;
+    f = files.begin();
+    l = files.end();
+
+    for(; f!=l ;f++){
+        if(!(f->getVecName().compare(fileName)))   //if found
+            files.erase(f);
+    }
+
 }
 bool Folders::hasFile(const char* fileName) {
     //look over the files vector and search file with same name
@@ -122,12 +136,9 @@ File& Folders::getFile(const char* name) {
         for(; f!=l ;f++){
             if(!(f->getVecName().compare(name)))
                 return *f;
-
         }
-
     }
     return *f;
-
 }
 int Folders::getFileNum(const char* name) {
     vector<File>::iterator f , l;
@@ -150,53 +161,78 @@ void Folders::writeToFile(const char* fileName,const int pos ,const char data) {
     {
         int loc = getFileNum(fileName);
         files[loc][i] = data;
+        files[loc].getfile().close();
     } else
         throw "writeToFile error: cannot find file with that name";
 
 
 }
+void Folders::readFromFile(const char *fileName,int pos) {
+    if(hasFile(fileName))
+    {
+        int loc = getFileNum(fileName);
+        cout << char(files[loc][pos]) << endl;
+        files[loc].getfile().close();
+    } else
+        throw "readFromFile error: cannot find file with that name";
 
+}
 void Folders::copyFile(const char* source, const char* destination) {
+    string des ,src;
 
     if(!hasFile(destination)){
         ttouch(destination);     //ceate new destination file
-        addFile(destination);   //add destination file to vector
-        copy(source , destination); //copy data
-    } else
-        copy(source , destination);
+        des = getFile(destination).getName();
+        src = getFile(source).getName();
+        copy(src.data() , des.data()); //copy data
+    } else{
+        des = getFile(destination).getName();
+        src = getFile(source).getName();
+        copy(src.data() , des.data());
+    }
+
 
 }
-
 void Folders::moveFile(const char* source, const char* destination) {
 
-    File &src = getFile(source);
+    string des,src;
+    int pos;
+    File &sorc = getFile(source);
     if(!hasFile(destination)){
         ttouch(destination);     //ceate new destination file
-        addFile(destination);   //add destination file to vector
-        move(source , destination); //copy data
-        src.remove();
+        des = getFile(destination).getName();
+        src = getFile(source).getName();
+        pos = getFileNum(source);
+        move(src.data() , des.data()); //copy data
+        removeFile(source);
 
     } else{
-        move(source,destination);
-        src.remove();
+        des = getFile(destination).getName();
+        src = getFile(source).getName();
+        move(src.data() , des.data());
+        removeFile(source);
     }
 }
-
 void Folders::ln(const char* src , const char* target) {
 
     if(hasFile(src)){
         File* file = &getFile(src);
         addFile(target);
-        file->ln(getFile(target));
+        file->ln(&getFile(target));
     } else
         throw "ln error: cannot file source file";
 
 }
-
 void Folders::ttouch(const char* fileName) {
+    string vecname = fileName;
     string realFileName = fileName;
-    realFileName.replace(0 , current.length() , "");
+    string path = fileName;
+
+    int location = vecname.find_last_of('/',vecname.length());
+    realFileName.replace(0 , location+1 , "");
+    path.replace(location+1, realFileName.length() , "");
+
     touch(realFileName.data());
-    addFile(fileName);
+    addFile(fileName , path);
 
 }
