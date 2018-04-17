@@ -151,7 +151,6 @@ bool File::operator==(const char* name) {
 }
 void copy(const char* source, const char* destination){
     ifstream src(source ,ios::in);
-    src.clear();
     //open destination file
     ofstream des(destination , ios::out );
     char c;
@@ -174,10 +173,10 @@ void move(const char* source, const char* destination){
     copy(source,destination);
     //remove the file out side the function
 };
-void File::ln(File* target) {
-    if(--target->file->refCount == 0)
-        delete target->file;
-    target->file = file;
+
+void File::ln(File* link) {
+
+    *link->file = *file;
     ++file->refCount;
 }
 

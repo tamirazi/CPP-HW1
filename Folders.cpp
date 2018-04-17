@@ -179,38 +179,60 @@ void Folders::readFromFile(const char *fileName,int pos) {
 }
 void Folders::copyFile(const char* source, const char* destination) {
     string des ,src;
+    //if the source file is in the real file system and not on the vector
+    if(!hasFile(source)){
+        if(!hasFile(destination)){  //and the destenation file is not in the vector
+            ttouch(destination);     //ceate new destination file
+            des = getFile(destination).getName();
+            copy(source , des.data()); //copy data
+        } else{
+            des = getFile(destination).getName();
+            copy(source , des.data());
+        }
 
-    if(!hasFile(destination)){
-        ttouch(destination);     //ceate new destination file
-        des = getFile(destination).getName();
-        src = getFile(source).getName();
-        copy(src.data() , des.data()); //copy data
-    } else{
-        des = getFile(destination).getName();
-        src = getFile(source).getName();
-        copy(src.data() , des.data());
+    } else{     //if the source file is in the vector
+        if(!hasFile(destination)){
+            ttouch(destination);     //ceate new destination file
+            des = getFile(destination).getName();
+            src = getFile(source).getName();
+            copy(src.data() , des.data()); //copy data
+        } else{
+            des = getFile(destination).getName();
+            src = getFile(source).getName();
+            copy(src.data() , des.data());
+        }
+
     }
+
 
 
 }
 void Folders::moveFile(const char* source, const char* destination) {
 
-    string des,src;
-    int pos;
-    File &sorc = getFile(source);
-    if(!hasFile(destination)){
-        ttouch(destination);     //ceate new destination file
-        des = getFile(destination).getName();
-        src = getFile(source).getName();
-        pos = getFileNum(source);
-        move(src.data() , des.data()); //copy data
-        removeFile(source);
+    string des ,src;
+    //if the source file is in the real file system and not on the vector
+    if(!hasFile(source)){
+        if(!hasFile(destination)){  //and the destenation file is not in the vector
+            ttouch(destination);     //ceate new destination file
+            des = getFile(destination).getName();
+            copy(source , des.data()); //copy data
+        } else{
+            des = getFile(destination).getName();
+            copy(source , des.data());
+        }
 
-    } else{
-        des = getFile(destination).getName();
-        src = getFile(source).getName();
-        move(src.data() , des.data());
-        removeFile(source);
+    } else{     //if the source file is in the vector
+        if(!hasFile(destination)){
+            ttouch(destination);     //ceate new destination file
+            des = getFile(destination).getName();
+            src = getFile(source).getName();
+            copy(src.data() , des.data()); //copy data
+        } else{
+            des = getFile(destination).getName();
+            src = getFile(source).getName();
+            copy(src.data() , des.data());
+        }
+
     }
 }
 void Folders::ln(const char* src , const char* target) {
@@ -218,7 +240,8 @@ void Folders::ln(const char* src , const char* target) {
     if(hasFile(src)){
         File* file = &getFile(src);
         addFile(target);
-        file->ln(&getFile(target));
+        File* trg = &getFile(target);
+        file->ln(trg);
     } else
         throw "ln error: cannot file source file";
 

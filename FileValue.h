@@ -12,12 +12,18 @@ using namespace std;
 
 class FileValue {
 
+
 public:
     int refCount;
     fstream* data;
     bool shareable;
     FileValue(const char* initValue);
     ~FileValue();
+
+    FileValue& operator=(const FileValue& elm) {
+        data = elm.data;
+        shareable = this->shareable;
+    }
 
 };
 
