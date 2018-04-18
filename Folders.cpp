@@ -24,7 +24,7 @@ void Folders::chdir(const char* name)  {
     if(hasFolder(name)){
         current = name;
     } else // if not make new one
-        throw logic_error("chdir error : no such folder");
+        throw "chdir error : no such folder";
 
 }
 void Folders::rmdir(const char* name) {
@@ -38,7 +38,7 @@ void Folders::rmdir(const char* name) {
         folders.erase(it);
 
     } else // if not make new one
-        throw logic_error("rmdir error : no such folder to delete");
+        throw "rmdir error : no such folder to delete";
 
 
     //remove all files inside that folder
@@ -74,7 +74,7 @@ void Folders::ls(const char* name ) {
         }
 
     } else // if not make new one
-        throw logic_error("ls error : cannot find folder");
+        throw "ls error : cannot find folder";
     cout<<endl;
 
 }
@@ -215,10 +215,12 @@ void Folders::moveFile(const char* source, const char* destination) {
         if(!hasFile(destination)){  //and the destenation file is not in the vector
             ttouch(destination);     //ceate new destination file
             des = getFile(destination).getName();
-            copy(source , des.data()); //copy data
+            move(source , des.data()); //copy data
+            removeFile(source);
         } else{
             des = getFile(destination).getName();
-            copy(source , des.data());
+            move(source , des.data());
+            removeFile(source);
         }
 
     } else{     //if the source file is in the vector
@@ -226,11 +228,14 @@ void Folders::moveFile(const char* source, const char* destination) {
             ttouch(destination);     //ceate new destination file
             des = getFile(destination).getName();
             src = getFile(source).getName();
-            copy(src.data() , des.data()); //copy data
+            move(src.data() , des.data()); //copy data
+            removeFile(source);
+
         } else{
             des = getFile(destination).getName();
             src = getFile(source).getName();
-            copy(src.data() , des.data());
+            move(src.data() , des.data());
+            removeFile(source);
         }
 
     }
@@ -251,7 +256,7 @@ void Folders::ttouch(const char* fileName) {
     string realFileName = fileName;
     string path = fileName;
 
-    int location = vecname.find_last_of('/',vecname.length());
+    unsigned long location = vecname.find_last_of('/',vecname.length());
     realFileName.replace(0 , location+1 , "");
     path.replace(location+1, realFileName.length() , "");
 

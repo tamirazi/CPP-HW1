@@ -27,7 +27,7 @@ char File::operator[](int i)const  {
     if(!file->data->is_open()){     //if not open, open file for input
         file->data->open(this->name.data() , ios::in);
         if(file->data->fail())
-            throw  std::runtime_error("operator[w] : cannot open file");
+            throw  "operator[w] : cannot open file";
     }
     file->data->seekg (0, file->data->end);
     int length = file->data->tellg();
@@ -45,7 +45,7 @@ CharProxy File::operator[](fstream::pos_type i){
     if(!file->data->is_open()){
         file->data->open(this->name.data() , ios::out | ios::app);
         if(file->data->fail())
-            throw  std::runtime_error("operator[w] : cannot open file");
+            throw  "operator[w] : cannot open file";
     }
     if(file->refCount > 1){
         --file->refCount;
@@ -58,7 +58,7 @@ CharProxy File::operator[](fstream::pos_type i){
     file->data->seekg (0, file->data->beg);
     if(i > length){
         file->data->close();
-        throw std::range_error(("can't write on location"));
+        throw "can't write on location";
     }
     file->data->clear();
 
@@ -72,6 +72,9 @@ File& File::operator=(const File& elm) {
         delete file;
     if(elm.file->shareable){
         file = elm.file;
+        name = elm.name;
+        path = elm.path;
+        vecName = elm.vecName;
         ++file->refCount;
     } else
         file = new FileValue(elm.name.data());
@@ -147,7 +150,7 @@ void File::remove() {
     }
 }
 bool File::operator==(const char* name) {
-    return (!(path.compare(name) == 0)) ? true : false;
+    return (vecName == name) ? true : false;
 }
 void copy(const char* source, const char* destination){
     ifstream src(source ,ios::in);
