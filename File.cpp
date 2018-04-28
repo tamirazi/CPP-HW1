@@ -3,9 +3,17 @@
 #include "File.h"
 
 
-File::File(const char* fileName ,const char* p):name(fileName),path(p),vecName(fileName) {
+File::File(const char* fileName ,const char* p):name(fileName),path(p) {
     file = new FileValue(fileName);
-    name.replace(0 , path.length() , "");
+    unsigned long location = name.find_last_of('/',name.length());
+    //if the user name the file with path
+    if(location < name.length() && location > 0){
+        name.replace(0 , location+1 , "");
+        path.replace(location+1, name.length() , "");
+        vecName.append(path).append(name);
+    } else{
+        vecName.append(path).append(name);
+    }
 }
 File::File(const File& elm):file(elm.file) , name(elm.name) , path(elm.path) , vecName(elm.vecName) {
     if(elm.file->shareable){
@@ -22,8 +30,8 @@ File::~File() {
     }
     //cout << "File Des" <<endl;
 }
-char File::operator[](int i)const  {
-    //cout << "operator[r]" << endl;
+const char File::operator[](int i)const  {
+
     if(!file->data->is_open()){     //if not open, open file for input
         file->data->open(this->name.data() , ios::in);
         if(file->data->fail())
@@ -39,8 +47,26 @@ char File::operator[](int i)const  {
     return char(file->data->peek());
 
 }
+const char File::getCharat(int i ) const {
+
+    if(!file->data->is_open()){     //if not open, open file for input
+        file->data->open(this->name.data() , ios::in);
+        if(file->data->fail())
+            throw  "operator[w] : cannot open file";
+    }
+    file->data->seekg (0, file->data->end);
+    int length = file->data->tellg();
+    file->data->seekg (0, file->data->beg);
+    if(i > length)
+        throw ("can't read on location");
+    file->data->seekg(i);
+
+    return char(file->data->peek());
+
+
+}
 CharProxy File::operator[](fstream::pos_type i){
-    //cout << "operator[w]" << endl;
+
     //open file
     if(!file->data->is_open()){
         file->data->open(this->name.data() , ios::out | ios::app);
@@ -89,7 +115,7 @@ void File::cat() const {
     if(!file->data->is_open()){
         file->data->open(this->name.data() , ios::in);
         if(file->data->fail())
-            throw "cat error : cannot find file";
+            throw "cat error : cannot open file";
     }
 
     file->data->seekg(0,file->data->beg);
@@ -158,9 +184,6 @@ void copy(const char* source, const char* destination){
     ofstream des(destination , ios::out );
     char c;
     //copy
-//    src.seekg(0,src.beg);
-//    des << src.rdbuf();
-
     src.seekg(0,src.beg);
     while(!src.eof()&& src.get(c)){
         des << c;
@@ -178,7 +201,6 @@ void move(const char* source, const char* destination){
 };
 
 void File::ln(File* link) {
-
     *link->file = *file;
     ++file->refCount;
 }

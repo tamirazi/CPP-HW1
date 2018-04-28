@@ -18,7 +18,8 @@ public:
     File& operator= (const File&);
     bool operator==(const char*);
     CharProxy operator [] (fstream::pos_type);
-    char operator [](int)const;
+    const char operator [](int)const;
+    const char getCharat(int)const ;
     void cat() const ;
     void wc() const ;
     int getref(){return file->refCount;}

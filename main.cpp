@@ -125,12 +125,12 @@ int main() {
                 break;
             }
 
-            cerr << "bad input" << endl;
+            cerr << "no such input command : '" << function << "' please try again" << endl;
 
 
 
         }catch (char const* error){
-            cerr << error;
+            cerr << error << endl;
         }
 
     }

@@ -10,12 +10,30 @@
 Folders::Folders():current("V/") {
     folders.push_back(Folder("V/" ,"V/"));
 };
-void Folders::mkdir(const char *name){
-    //check if the vector already have folder with that name
-    if(hasFolder(name) ){
-        throw ("mkdir error : already have folder with that name");
-    } else // if not make new one
-        folders.push_back(Folder(name , current.data()));
+void Folders::mkdir(const char *folderName){
+    string name(folderName);
+    string path(folderName);
+
+    unsigned long location = name.find_last_of('/',name.length());
+
+    //if the user name the folder with path
+    if(location < name.length() && location > 0){
+        if(hasFolder(folderName)){      //check if the vector already have folder with that name
+            throw "mkdir error : already have folder with that name";
+        }else{
+            folders.push_back(Folder(name.data() , current.data()));
+        }
+
+    } else{
+        if(hasFolder(folderName) ){     //check if the vector already have folder with that name
+            throw ("mkdir error : already have folder with that name");
+        } else {
+            name.replace(0 , name.length() ,  "");
+            name.append(current).append(folderName);
+            folders.push_back(Folder(name.data(), current.data()));
+
+        }
+    }
 
 }
 void Folders::chdir(const char* name)  {
@@ -171,7 +189,7 @@ void Folders::readFromFile(const char *fileName,int pos) {
     if(hasFile(fileName))
     {
         int loc = getFileNum(fileName);
-        cout << char(files[loc][pos]) << endl;
+        cout << getFile(fileName).getCharat(pos) << endl;
         files[loc].getfile().close();
     } else
         throw "readFromFile error: cannot find file with that name";
@@ -241,10 +259,10 @@ void Folders::moveFile(const char* source, const char* destination) {
     }
 }
 void Folders::ln(const char* src , const char* target) {
-
     if(hasFile(src)){
-        File* file = &getFile(src);
+
         addFile(target);
+        File* file = &getFile(src);
         File* trg = &getFile(target);
         file->ln(trg);
     } else
@@ -257,10 +275,16 @@ void Folders::ttouch(const char* fileName) {
     string path = fileName;
 
     unsigned long location = vecname.find_last_of('/',vecname.length());
-    realFileName.replace(0 , location+1 , "");
-    path.replace(location+1, realFileName.length() , "");
+    //if the user name the file with path
+    if(location < vecname.length() && location > 0){
+        realFileName.replace(0 , location+1 , "");
+        path.replace(location+1, realFileName.length() , "");
+        touch(realFileName.data());
+        addFile(fileName , path);
+    } else{
+        touch(realFileName.data());
+        addFile(fileName);
+    }
 
-    touch(realFileName.data());
-    addFile(fileName , path);
 
 }
